@@ -392,6 +392,33 @@ def simulate_thermo_time(base_directory):
     sim.save_simulation_settings(base_directory)
     sim.save_simulation_results(base_directory)
 
+def simulate_poisson_static(base_directory):
+    """This function implements a static poisson-equation simulation in the
+    space domain. -- Only one single static solution is calculated.
+
+    Parameters:
+        base_directory: Directory in which the simulation folder is created
+    """
+    mesh = load_mesh(os.path.join(base_directory, "disc_mesh.msh"))
+
+    sim = plutho.PoissonStatic(
+        "thermo_piezo_sim_20k",
+        mesh
+    )
+
+    sim.add_material(
+        "pic255",
+        pic255,
+        ""
+    )
+
+    sim.assemble()
+    sim.add_neumann_boundary_conditions(0.0, 1.0, 0.001)
+    phi = sim.simulate()
+    sim.plot_potential()
+
+    sim.save_simulation_settings(base_directory)
+    sim.save_simulation_results(base_directory)
 
 if __name__ == "__main__":
     CWD = os.path.join(
@@ -403,7 +430,8 @@ if __name__ == "__main__":
     if not os.path.isdir(CWD):
         os.makedirs(CWD)
 
-    simulate_piezo_impedance(CWD, True)
+    simulate_poisson_static(CWD)
+    # simulate_piezo_impedance(CWD, True)
     # simulate_thermo_piezo(CWD)
     # simulate_coupled_thermo_time(CWD)
     # simulate_coupled_thermo_freq(CWD)
